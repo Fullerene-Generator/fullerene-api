@@ -1,16 +1,20 @@
 import asyncio
 from .config import config
 from .cache import Cache
+from ..states.job_state import ProcessWrapper
 
 
-async def stream_generate(max_n: int, cache: Cache):
+async def stream_generate(max_n: int, cache: Cache, processWraper: ProcessWrapper):
+
+    processWraper.setRunning()
+
     process = await asyncio.create_subprocess_exec(
         config.FULLERENE_EXE,
         str(max_n),
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE
     )
-
+    processWraper.process = process
     reader = process.stdout
 
     current_id = 0
@@ -40,3 +44,4 @@ async def stream_generate(max_n: int, cache: Cache):
         current_id += 1
 
     await process.wait()
+    processWraper.setIdle()

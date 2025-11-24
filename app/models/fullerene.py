@@ -21,10 +21,16 @@ class GenerateRequest(BaseModel):
 class GenerateResponse(BaseModel):
     status: str
     requested: int
+    
+
+
+class CountPair(BaseModel):
+    vertices: int
+    count: int
 
 
 class CountsResponse(BaseModel):
-    counts: Dict[int, int]  # { size: count }
+    items: List[CountPair]
 
 
 class FullereneMetadataListResponse(BaseModel):
