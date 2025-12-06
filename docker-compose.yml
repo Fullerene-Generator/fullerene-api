@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  fastapi_cpp_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    ports:
+      - "8000:80"
+    
+    environment:
+      - FULLERENE_EXE=/usr/local/bin/fullerene_generator
+      - CACHE_BACKEND=memory
+      
