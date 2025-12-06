@@ -1,0 +1,4 @@
+[submodule "external/fullerene-generator"]
+	path = external/fullerene-generator
+	url = https://github.com/Fullerene-Generator/fullerene-generator
+	branch = main
