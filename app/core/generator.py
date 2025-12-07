@@ -25,22 +25,16 @@ async def stream_generate(max_n: int, cache: Cache, processWraper: ProcessWrappe
             break
 
         n = int(line.decode().strip())
-
+        line = await reader.readline()
+        outer_vertices = [int(x) for x in line.decode().split()]
         edges = []
-        edges_count = (n * 3) // 2
 
-        for _ in range(edges_count):
-            line = await reader.readline()
-            u, v = line.decode().strip().split()
-            edges.append([int(u), int(v)])
-
-        coords = []
         for _ in range(n):
             line = await reader.readline()
-            x, y = line.decode().strip().split()
-            coords.append([float(x), float(y)])
+            u, v, w = line.decode().strip().split()
+            edges.append([int(u), int(v), int(w)])
 
-        cache.add_fullerene(n, current_id, edges, coords)
+        cache.add_fullerene(n, current_id, outer_vertices, edges)
         current_id += 1
 
     await process.wait()

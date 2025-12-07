@@ -16,7 +16,8 @@ RUN mkdir build && cd build && \
 
 FROM python:3.11-slim
 
-COPY --from=builder /build/fullerene_generator /usr/local/bin/
+COPY --from=builder /build/apps/generator/fullerene_generator /usr/local/bin/
+COPY --from=builder /build/apps/embedder/embedder /usr/local/bin/
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

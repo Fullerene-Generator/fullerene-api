@@ -11,6 +11,11 @@ class FullereneData(BaseModel):
     id: int
     n: int
     edges: List[List[int]]
+
+class FullereneVisualizationData(BaseModel):
+    id: int
+    n: int
+    edges: List[List[int]]
     coords: List[List[float]]
 
 
@@ -38,6 +43,3 @@ class FullereneMetadataListResponse(BaseModel):
     count: int
     metadata: List[FullereneMetadata]
 
-
-class FullereneDataResponse(FullereneData):
-    pass
