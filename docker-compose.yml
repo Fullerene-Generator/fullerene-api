@@ -12,4 +12,5 @@ services:
     environment:
       - FULLERENE_EXE=/usr/local/bin/fullerene_generator
       - CACHE_BACKEND=memory
+      - EMBEDDER_2D_EXE=/usr/local/bin/embedder
       

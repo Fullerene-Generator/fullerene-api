@@ -12,8 +12,8 @@ class FullereneMetadataDict(TypedDict):
 class FullereneDataDict(TypedDict):
     id: int
     n: int
+    outer_vertices: List[int]
     edges: List[List[int]]
-    coords: List[List[float]]
 
 
 class Cache(ABC):
@@ -38,8 +38,8 @@ class Cache(ABC):
         self,
         n: int,
         id: int,
-        edges: List[List[int]],
-        coords: List[List[float]]
+        outer_vertices: List[int],
+        edges: List[List[int]]
     ) -> None:
         pass
 
@@ -83,8 +83,8 @@ class MemoryCache(Cache):
         self,
         n: int,
         id: int,
+        outer_vertices: List[int],
         edges: List[List[int]],
-        coords: List[List[float]]
     ) -> None:
 
         full_key = f"fullerene:{n}:{id}"
@@ -93,8 +93,8 @@ class MemoryCache(Cache):
         full_data: FullereneDataDict = {
             "id": id,
             "n": n,
+            "outer_vertices": outer_vertices,
             "edges": edges,
-            "coords": coords
         }
 
         meta_data: FullereneMetadataDict = {

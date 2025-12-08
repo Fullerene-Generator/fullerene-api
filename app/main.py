@@ -9,7 +9,6 @@ if sys.platform.startswith("win"):
 
 app = FastAPI(title="Fullerene Generator API")
 
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
