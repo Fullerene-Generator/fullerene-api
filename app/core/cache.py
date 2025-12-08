@@ -3,6 +3,7 @@ from typing import Dict, Any, List, Optional, TypedDict
 from threading import Lock
 from app.core.config import config
 import sqlite3
+from sqlite3 import Connection
 import json
 
 class FullereneMetadataDict(TypedDict):
@@ -38,6 +39,10 @@ class Cache(ABC):
 
     @abstractmethod
     def get_fullerene(self, n: int, id: int) -> Optional[FullereneDataDict]:
+        pass
+
+    @abstractmethod
+    def clear_cache(self):
         pass
 
 
@@ -121,6 +126,9 @@ class MemoryCache(Cache):
         if isinstance(value, dict):
             return value
         return None
+    
+    def clear_cache(self):
+        self.store = {}
 
 class SqliteCache(Cache):
     def __init__(self):
@@ -149,14 +157,19 @@ class SqliteCache(Cache):
     def get_fullerene(self, n, id):
         cur = self.conn.cursor()
         res = cur.execute("SELECT * FROM fullerenes WHERE n=? and id=?", (n, id))
-        result: List[FullereneMetadataDict] = []
         fullerene = res.fetchone()
+        if fullerene is None:
+            return None
         return {
             "id": fullerene[0],
             "n": fullerene[1],
             "outer_vertices": json.loads(fullerene[2]),
             "edges": json.loads(fullerene[3]),
         }
+    
+    def clear_cache(self):
+        self.conn.close()
+        self.conn = initialize_db()
 
 
 _cache_instance: Optional[Cache] = None
