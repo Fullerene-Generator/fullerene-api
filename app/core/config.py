@@ -1,8 +1,8 @@
 import os
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 
 # odkomentuj jezeli włączasz aplikację lokalnie
-# load_dotenv()
+load_dotenv()
 
 class Config:
     FULLERENE_EXE = os.getenv("FULLERENE_EXE")
