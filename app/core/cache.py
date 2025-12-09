@@ -156,7 +156,7 @@ class SqliteCache(Cache):
         return result
     def get_fullerene(self, n, id):
         cur = self.conn.cursor()
-        res = cur.execute("SELECT * FROM fullerenes WHERE n=? and id=?", (n, id))
+        res = cur.execute("SELECT * FROM fullerenes WHERE id=?", (id,))
         fullerene = res.fetchone()
         if fullerene is None:
             return None
