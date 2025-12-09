@@ -3,7 +3,6 @@ from typing import Dict, Any, List, Optional, TypedDict
 from threading import Lock
 from app.core.config import config
 import sqlite3
-from sqlite3 import Connection
 import json
 
 class FullereneMetadataDict(TypedDict):
@@ -130,13 +129,16 @@ class MemoryCache(Cache):
     def clear_cache(self):
         self.store = {}
 
+
 class SqliteCache(Cache):
     def __init__(self):
         self.conn = initialize_db()
+
     def add_fullerene(self, n, id, outer_vertices, edges):
         cur = self.conn.cursor()
         cur.execute("INSERT INTO fullerenes(id, n, outer_vertices, edges) VALUES (?, ?, ?, ?)", (id, n, json.dumps(outer_vertices), json.dumps(edges)))
         self.conn.commit()
+
     def get_counts(self):
         cur = self.conn.cursor()
         res = cur.execute("SELECT n, COUNT(*) FROM fullerenes GROUP BY n")
@@ -144,6 +146,7 @@ class SqliteCache(Cache):
         for row in res:
             result[row[0]] = row[1]
         return result
+
     def get_metadata_for_size(self, n):
         cur = self.conn.cursor()
         res = cur.execute("SELECT id, n FROM fullerenes WHERE n=?", (n,))
@@ -154,6 +157,7 @@ class SqliteCache(Cache):
                 "n": row[1]
             })
         return result
+
     def get_fullerene(self, n, id):
         cur = self.conn.cursor()
         res = cur.execute("SELECT * FROM fullerenes WHERE id=?", (id,))
@@ -179,7 +183,6 @@ def initialize_db():
     cur = conn.cursor()
     cur.execute("CREATE TABLE fullerenes(id INTEGER PRIMARY KEY, n INTEGER, outer_vertices TEXT, edges TEXT)")
     return conn
-
 
 
 def get_cache_instance() -> Cache:
