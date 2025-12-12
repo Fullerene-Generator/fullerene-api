@@ -8,6 +8,8 @@ async def stream_generate(max_n: int, cache: Cache, processWraper: ProcessWrappe
 
     processWraper.setRunning()
 
+    cache.clear_cache()
+
     process = await asyncio.create_subprocess_exec(
         config.FULLERENE_EXE,
         str(max_n),

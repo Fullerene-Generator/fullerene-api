@@ -2,7 +2,8 @@ from abc import ABC, abstractmethod
 from typing import Dict, Any, List, Optional, TypedDict
 from threading import Lock
 from app.core.config import config
-
+import sqlite3
+import json
 
 class FullereneMetadataDict(TypedDict):
     id: int
@@ -17,22 +18,6 @@ class FullereneDataDict(TypedDict):
 
 
 class Cache(ABC):
-    @abstractmethod
-    def set(self, key: str, value: Any) -> None:
-        pass
-
-    @abstractmethod
-    def get(self, key: str) -> Optional[Any]:
-        pass
-
-    @abstractmethod
-    def incr(self, key: str) -> int:
-        pass
-
-    @abstractmethod
-    def keys(self) -> List[str]:
-        pass
-
     @abstractmethod
     def add_fullerene(
         self,
@@ -53,6 +38,10 @@ class Cache(ABC):
 
     @abstractmethod
     def get_fullerene(self, n: int, id: int) -> Optional[FullereneDataDict]:
+        pass
+
+    @abstractmethod
+    def clear_cache(self):
         pass
 
 
@@ -136,9 +125,64 @@ class MemoryCache(Cache):
         if isinstance(value, dict):
             return value
         return None
+    
+    def clear_cache(self):
+        self.store = {}
+
+
+class SqliteCache(Cache):
+    def __init__(self):
+        self.conn = initialize_db()
+
+    def add_fullerene(self, n, id, outer_vertices, edges):
+        cur = self.conn.cursor()
+        cur.execute("INSERT INTO fullerenes(id, n, outer_vertices, edges) VALUES (?, ?, ?, ?)", (id, n, json.dumps(outer_vertices), json.dumps(edges)))
+        self.conn.commit()
+
+    def get_counts(self):
+        cur = self.conn.cursor()
+        res = cur.execute("SELECT n, COUNT(*) FROM fullerenes GROUP BY n")
+        result: Dict[int, int] = {}
+        for row in res:
+            result[row[0]] = row[1]
+        return result
+
+    def get_metadata_for_size(self, n):
+        cur = self.conn.cursor()
+        res = cur.execute("SELECT id, n FROM fullerenes WHERE n=?", (n,))
+        result: List[FullereneMetadataDict] = []
+        for row in res:
+            result.append({
+                "id": row[0],
+                "n": row[1]
+            })
+        return result
+
+    def get_fullerene(self, n, id):
+        cur = self.conn.cursor()
+        res = cur.execute("SELECT * FROM fullerenes WHERE id=?", (id,))
+        fullerene = res.fetchone()
+        if fullerene is None:
+            return None
+        return {
+            "id": fullerene[0],
+            "n": fullerene[1],
+            "outer_vertices": json.loads(fullerene[2]),
+            "edges": json.loads(fullerene[3]),
+        }
+    
+    def clear_cache(self):
+        self.conn.close()
+        self.conn = initialize_db()
 
 
 _cache_instance: Optional[Cache] = None
+
+def initialize_db():
+    conn = sqlite3.connect("", check_same_thread=False)
+    cur = conn.cursor()
+    cur.execute("CREATE TABLE fullerenes(id INTEGER PRIMARY KEY, n INTEGER, outer_vertices TEXT, edges TEXT)")
+    return conn
 
 
 def get_cache_instance() -> Cache:
@@ -151,6 +195,8 @@ def get_cache_instance() -> Cache:
 
     if backend == "memory":
         _cache_instance = MemoryCache()
+    elif backend == "sqlite":
+        _cache_instance = SqliteCache()
 
     else:
         raise ValueError(f"Unknown CACHE_BACKEND: {backend}")
