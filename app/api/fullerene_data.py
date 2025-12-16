@@ -8,7 +8,12 @@ router = APIRouter()
 
 @router.get("/fullerenes/2D/{size}/{id}", response_model=FullereneVisualizationData)
 async def get_fullerene(size: int, id: int, cache: Cache=Depends(get_cache_instance)):
-    data = cache.get_fullerene(size, id)
+    try:
+        data = cache.get_fullerene(size, id)
+    except Exception as e:
+        raise HTTPException(status_code = 500,
+                            detail=f"Failed to fetch data for fullerene with id: {id}. Cause: {e}")
+    
     if not data:
         raise HTTPException(status_code=404, detail="Fullerene not found")
     
@@ -54,9 +59,16 @@ async def get_fullerene(size: int, id: int, cache: Cache=Depends(get_cache_insta
 
 @router.get("/fullerenes/3D/{size}/{id}", response_model=FullereneVisualizationData)
 async def get_fullerene(size: int, id: int, cache: Cache=Depends(get_cache_instance)):
-    data = cache.get_fullerene(size, id)
+    try:
+        data = cache.get_fullerene(size, id)
+    except Exception as e:
+        raise HTTPException(status_code = 500,
+                            detail=f"Failed to fetch data for fullerene with id: {id}. Cause: {e}")
+    
     if not data:
         raise HTTPException(status_code=404, detail="Fullerene not found")
+    
+    print("ABOUT TO CREATE SUBPROCESS")
     
     process = await asyncio.create_subprocess_exec(
         config.EMBEDDER_2D_EXE,
@@ -65,6 +77,9 @@ async def get_fullerene(size: int, id: int, cache: Cache=Depends(get_cache_insta
         stderr=asyncio.subprocess.PIPE,
         stdin=asyncio.subprocess.PIPE,
     )
+
+    print(f"PROCESS CREATED: {process}") 
+    
     lines = []
 
     lines.append(str(data["n"]))
@@ -88,9 +103,7 @@ async def get_fullerene(size: int, id: int, cache: Cache=Depends(get_cache_insta
     output_edges = []
 
     for i, neighbours in enumerate(data["edges"]):
-        print(neighbours)
         for j in range(3):
-            print(neighbours[j])
             if neighbours[j] > i:
                 output_edges.append([int(i), int(neighbours[j])])
 

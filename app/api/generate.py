@@ -3,8 +3,6 @@ from ..models.fullerene import GenerateRequest, GenerateResponse
 from ..core.generator import stream_generate
 from ..core.cache import get_cache_instance
 from ..states.job_state import ProcessWrapper
-import subprocess
-import threading
 
 from enum import Enum
 
