@@ -34,7 +34,7 @@ async def get_fullerene(size: int, id: int, cache: Cache=Depends(get_cache_insta
     input = "\n".join(lines)
     stdout, stderr = await process.communicate(input.encode())
     if stderr:
-        print("ERROR:", stderr.decode())
+        raise HTTPException(status_code=500, detail=f"Error running 2D embedder due to : {stderr.decode()}")
 
     lines = stdout.decode().strip().splitlines()
 
@@ -68,8 +68,6 @@ async def get_fullerene(size: int, id: int, cache: Cache=Depends(get_cache_insta
     if not data:
         raise HTTPException(status_code=404, detail="Fullerene not found")
     
-    print("ABOUT TO CREATE SUBPROCESS")
-    
     process = await asyncio.create_subprocess_exec(
         config.EMBEDDER_2D_EXE,
         "3",
@@ -77,8 +75,6 @@ async def get_fullerene(size: int, id: int, cache: Cache=Depends(get_cache_insta
         stderr=asyncio.subprocess.PIPE,
         stdin=asyncio.subprocess.PIPE,
     )
-
-    print(f"PROCESS CREATED: {process}") 
     
     lines = []
 
@@ -90,7 +86,7 @@ async def get_fullerene(size: int, id: int, cache: Cache=Depends(get_cache_insta
     input = "\n".join(lines)
     stdout, stderr = await process.communicate(input.encode())
     if stderr:
-        print("ERROR:", stderr.decode())
+        raise HTTPException(status_code=500, detail=f"Error running 3D embedder due to : {stderr.decode()}")
 
     lines = stdout.decode().strip().splitlines()
 

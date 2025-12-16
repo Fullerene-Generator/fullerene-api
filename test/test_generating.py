@@ -3,7 +3,7 @@ from app.core.generator import stream_generate
 from app.states.job_state import ProcessWrapper
 from unittest.mock import AsyncMock, MagicMock, patch
 from .mocks import MockAsyncProcess, FaultyCache
-from .testconstants import C30_INPUT, C30_N, C30_EDGES, C30_OUTER_VERTICES, C30_3D_EMBEDDER_OUTPUT, C30_EDGES_EMBEDDING, C30_3D_EMBEDDING_OUTPUT, C30_2D_EMBEDDER_OUTPUT, C30_2D_EMBEDDING_OUTPUT
+from .testconstants import C30_INPUT, C30_N, C30_EDGES, C30_OUTER_VERTICES
 from app.main import app
 from fastapi.testclient import TestClient
 from app.core.cache import get_cache_instance

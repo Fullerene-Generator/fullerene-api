@@ -8,10 +8,10 @@ router = APIRouter()
 async def get_counts(cache=Depends(get_cache_instance)):
     try:
         counts = cache.get_counts()
-    except Exception:
+    except Exception as e:
           raise HTTPException(
             status_code=500,
-            detail="Failed to fetch counts"
+            detail=f"Failed to fetch counts due to {e}"
         )
     items = [CountPair(vertices=size, count=count) for size, count in counts.items()]
     return CountsResponse(items=items)

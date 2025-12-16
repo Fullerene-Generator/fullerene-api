@@ -2,7 +2,7 @@ from app.core.generator import stream_generate
 from app.states.job_state import ProcessWrapper
 from unittest.mock import patch
 from .mocks import MockAsyncProcess, FaultyCache
-from .testconstants import C30_INPUT
+from .testconstants import C30_INPUT, EXCEPTION_REASON
 from app.main import app
 from fastapi.testclient import TestClient
 from app.core.cache import get_cache_instance
@@ -49,7 +49,7 @@ class TestMetadata(BaseIntegrationTest):
 
         assert response.status_code == 500
         assert response.json() == {
-        "detail" : "Cannot fetch metadata for size 30. Cause: unknown exception"
+        "detail" : f"Cannot fetch metadata for size 30. Cause: {EXCEPTION_REASON}"
         }
         
         app.dependency_overrides = {}
