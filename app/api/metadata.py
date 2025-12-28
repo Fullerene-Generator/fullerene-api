@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from ..core.cache import get_cache_instance
 from ..models.fullerene import FullereneMetadataListResponse
 
@@ -6,7 +6,14 @@ router = APIRouter()
 
 @router.get("/fullerenes/{size}", response_model=FullereneMetadataListResponse)
 async def get_metadata(size: int, cache=Depends(get_cache_instance)):
-    metadata = cache.get_metadata_for_size(size)
+    try:
+        metadata = cache.get_metadata_for_size(size)
+    except Exception as e:
+        raise HTTPException(status_code=500,
+                             detail=f"Cannot fetch metadata for size {size}. Cause: {e}")
+
+    if len(metadata) == 0:
+         raise HTTPException(status_code=404, detail=f"Metadata for given size not found size: {size}")
     return FullereneMetadataListResponse(
         size=size,
         count=len(metadata),

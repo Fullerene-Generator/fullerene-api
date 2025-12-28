@@ -16,7 +16,6 @@ class FullereneDataDict(TypedDict):
     outer_vertices: List[int]
     edges: List[List[int]]
 
-
 class Cache(ABC):
     @abstractmethod
     def add_fullerene(

@@ -8,7 +8,12 @@ router = APIRouter()
 
 @router.get("/fullerenes/2D/{size}/{id}", response_model=FullereneVisualizationData)
 async def get_fullerene(size: int, id: int, cache: Cache=Depends(get_cache_instance)):
-    data = cache.get_fullerene(size, id)
+    try:
+        data = cache.get_fullerene(size, id)
+    except Exception as e:
+        raise HTTPException(status_code = 500,
+                            detail=f"Failed to fetch data for fullerene with id: {id}. Cause: {e}")
+    
     if not data:
         raise HTTPException(status_code=404, detail="Fullerene not found")
     
@@ -29,7 +34,7 @@ async def get_fullerene(size: int, id: int, cache: Cache=Depends(get_cache_insta
     input = "\n".join(lines)
     stdout, stderr = await process.communicate(input.encode())
     if stderr:
-        print("ERROR:", stderr.decode())
+        raise HTTPException(status_code=500, detail=f"Error running 2D embedder due to : {stderr.decode()}")
 
     lines = stdout.decode().strip().splitlines()
 
@@ -54,7 +59,12 @@ async def get_fullerene(size: int, id: int, cache: Cache=Depends(get_cache_insta
 
 @router.get("/fullerenes/3D/{size}/{id}", response_model=FullereneVisualizationData)
 async def get_fullerene(size: int, id: int, cache: Cache=Depends(get_cache_instance)):
-    data = cache.get_fullerene(size, id)
+    try:
+        data = cache.get_fullerene(size, id)
+    except Exception as e:
+        raise HTTPException(status_code = 500,
+                            detail=f"Failed to fetch data for fullerene with id: {id}. Cause: {e}")
+    
     if not data:
         raise HTTPException(status_code=404, detail="Fullerene not found")
     
@@ -65,6 +75,7 @@ async def get_fullerene(size: int, id: int, cache: Cache=Depends(get_cache_insta
         stderr=asyncio.subprocess.PIPE,
         stdin=asyncio.subprocess.PIPE,
     )
+    
     lines = []
 
     lines.append(str(data["n"]))
@@ -75,7 +86,7 @@ async def get_fullerene(size: int, id: int, cache: Cache=Depends(get_cache_insta
     input = "\n".join(lines)
     stdout, stderr = await process.communicate(input.encode())
     if stderr:
-        print("ERROR:", stderr.decode())
+        raise HTTPException(status_code=500, detail=f"Error running 3D embedder due to : {stderr.decode()}")
 
     lines = stdout.decode().strip().splitlines()
 
@@ -88,9 +99,7 @@ async def get_fullerene(size: int, id: int, cache: Cache=Depends(get_cache_insta
     output_edges = []
 
     for i, neighbours in enumerate(data["edges"]):
-        print(neighbours)
         for j in range(3):
-            print(neighbours[j])
             if neighbours[j] > i:
                 output_edges.append([int(i), int(neighbours[j])])
 
