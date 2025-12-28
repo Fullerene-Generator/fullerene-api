@@ -36,6 +36,10 @@ class Cache(ABC):
         pass
 
     @abstractmethod
+    def get_metadata_by_id(self, id: int) -> FullereneMetadataDict:
+        pass
+
+    @abstractmethod
     def get_fullerene(self, n: int, id: int) -> Optional[FullereneDataDict]:
         pass
 
@@ -156,6 +160,15 @@ class SqliteCache(Cache):
                 "n": row[1]
             })
         return result
+    
+    def get_metadata_by_id(self, id):
+        cur = self.conn.cursor()
+        res = cur.execute("SELECT id, n FROM fullerenes WHERE id=?", (id,))
+        metadata = res.fetchone()
+        return{
+            "id": metadata[0],
+            "n": metadata[1]
+        }
 
     def get_fullerene(self, n, id):
         cur = self.conn.cursor()

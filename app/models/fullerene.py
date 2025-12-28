@@ -43,3 +43,6 @@ class FullereneMetadataListResponse(BaseModel):
     count: int
     metadata: List[FullereneMetadata]
 
+class FullereneMetadataByIdResponse(BaseModel):
+    metadata: FullereneMetadata
+
