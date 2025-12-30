@@ -207,8 +207,10 @@ class SqliteCache(Cache):
         return {
             "id": fullerene[0],
             "n": fullerene[1],
-            "outer_vertices": json.loads(fullerene[2]),
-            "edges": json.loads(fullerene[3]),
+            "parent_id": fullerene[2],
+            "is_ipr": fullerene[3],
+            "outer_vertices": json.loads(fullerene[4]),
+            "edges": json.loads(fullerene[5]),
         }
     
     def clear_cache(self):
