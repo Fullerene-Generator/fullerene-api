@@ -27,7 +27,7 @@ class Test2DVisualization(BaseIntegrationTest):
 
         process_instance.communicate = AsyncMock(return_value=(C30_3D_EMBEDDER_OUTPUT.encode(), None))
         mock_embedder_subprocess_exec.return_value = process_instance
-        response = client.get("/fullerenes/3D/30/0")
+        response = client.get("/fullerenes/3D/30/30:0")
         process_instance.communicate.assert_awaited_once()
 
 
@@ -102,7 +102,7 @@ class Test2DVisualization(BaseIntegrationTest):
 
         process_instance.communicate = AsyncMock(return_value=(None, EXCEPTION_REASON.encode()))
         mock_embedder_subprocess_exec.return_value = process_instance
-        response = client.get("/fullerenes/3D/30/0")
+        response = client.get("/fullerenes/3D/30/30:0")
         process_instance.communicate.assert_awaited_once()
 
 

@@ -28,8 +28,10 @@ class TestMetadata(BaseIntegrationTest):
             "count": 1,
             "metadata": [
                 {
-                "id": 0,
-                "n": 30
+                "id": "30:0",
+                "n": 30,
+                "parent_id": "BASE",
+                "is_ipr": False,
                 }
             ]
         }

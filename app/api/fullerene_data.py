@@ -7,7 +7,7 @@ from ..core.config import config
 router = APIRouter()
 
 @router.get("/fullerenes/2D/{size}/{id}", response_model=FullereneVisualizationData)
-async def get_fullerene(size: int, id: int, cache: Cache=Depends(get_cache_instance)):
+async def get_fullerene(size: int, id: str, cache: Cache=Depends(get_cache_instance)):
     try:
         data = cache.get_fullerene(size, id)
     except Exception as e:
@@ -58,7 +58,7 @@ async def get_fullerene(size: int, id: int, cache: Cache=Depends(get_cache_insta
 
 
 @router.get("/fullerenes/3D/{size}/{id}", response_model=FullereneVisualizationData)
-async def get_fullerene(size: int, id: int, cache: Cache=Depends(get_cache_instance)):
+async def get_fullerene(size: int, id: str, cache: Cache=Depends(get_cache_instance)):
     try:
         data = cache.get_fullerene(size, id)
     except Exception as e:
