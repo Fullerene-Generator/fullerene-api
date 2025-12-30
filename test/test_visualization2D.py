@@ -27,7 +27,7 @@ class Test3DVisualization(BaseIntegrationTest):
 
         process_instance.communicate = AsyncMock(return_value=(C30_2D_EMBEDDER_OUTPUT.encode(), None))
         mock_embedder_subprocess_exec.return_value = process_instance
-        response = client.get("/fullerenes/2D/30/0")
+        response = client.get("/fullerenes/2D/30/30:0")
         process_instance.communicate.assert_awaited_once()
 
         
@@ -55,12 +55,12 @@ class Test3DVisualization(BaseIntegrationTest):
 
         process_instance.communicate = AsyncMock(return_value=(C30_2D_EMBEDDER_OUTPUT.encode(), None))
         mock_embedder_subprocess_exec.return_value = process_instance
-        response = client.get("/fullerenes/2D/30/0")
+        response = client.get("/fullerenes/2D/30/30:0")
 
         
         assert response.status_code == 500
         assert response.json() == {
-            "detail": f"Failed to fetch data for fullerene with id: 0. Cause: {EXCEPTION_REASON}"
+            "detail": f"Failed to fetch data for fullerene with id: 30:0. Cause: {EXCEPTION_REASON}"
         }
         app.dependency_overrides = {}
 
@@ -78,7 +78,7 @@ class Test3DVisualization(BaseIntegrationTest):
         mock_embedder_subprocess_exec.return_value = process_instance
 
 
-        response = client.get("/fullerenes/2D/30/0")
+        response = client.get("/fullerenes/2D/30/30:0")
 
 
         assert response.status_code == 404
@@ -104,7 +104,7 @@ class Test3DVisualization(BaseIntegrationTest):
 
         process_instance.communicate = AsyncMock(return_value=(None, EXCEPTION_REASON.encode()))
         mock_embedder_subprocess_exec.return_value = process_instance
-        response = client.get("/fullerenes/2D/30/0")
+        response = client.get("/fullerenes/2D/30/30:0")
         process_instance.communicate.assert_awaited_once()
 
 
