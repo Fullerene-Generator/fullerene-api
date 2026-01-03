@@ -32,7 +32,7 @@ class Cache(ABC):
         pass
 
     @abstractmethod
-    def get_metadata_for_size(self, n: int) -> List[FullereneMetadataDict]:
+    def get_metadata_for_size(self, n: int, limit: int, offset: int) -> List[FullereneMetadataDict]:
         pass
 
     @abstractmethod
@@ -150,9 +150,9 @@ class SqliteCache(Cache):
             result[row[0]] = row[1]
         return result
 
-    def get_metadata_for_size(self, n):
+    def get_metadata_for_size(self, n, limit, offset):
         cur = self.conn.cursor()
-        res = cur.execute("SELECT id, n FROM fullerenes WHERE n=?", (n,))
+        res = cur.execute("SELECT id, n FROM fullerenes WHERE n=? LIMIT ? OFFSET ?", (n, limit, offset))
         result: List[FullereneMetadataDict] = []
         for row in res:
             result.append({
