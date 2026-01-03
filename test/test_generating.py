@@ -31,7 +31,7 @@ class TestGeneration(BaseIntegrationTest):
 
         assert fullerene is not None
 
-        _, n, outer_vertices_db, edges_json_db = fullerene
+        _, n, _, _, outer_vertices_db, edges_json_db = fullerene
         
         assert n == C30_N
         assert json.loads(outer_vertices_db) == C30_OUTER_VERTICES

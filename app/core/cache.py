@@ -6,13 +6,17 @@ import sqlite3
 import json
 
 class FullereneMetadataDict(TypedDict):
-    id: int
+    id: str
     n: int
+    parent_id: str
+    is_ipr: bool
 
 
 class FullereneDataDict(TypedDict):
-    id: int
+    id: str
     n: int
+    parent_id: str
+    is_ipr: bool
     outer_vertices: List[int]
     edges: List[List[int]]
 
@@ -21,7 +25,9 @@ class Cache(ABC):
     def add_fullerene(
         self,
         n: int,
-        id: int,
+        id: str,
+        parent_id: str,
+        is_ipr: bool,
         outer_vertices: List[int],
         edges: List[List[int]]
     ) -> None:
@@ -36,11 +42,11 @@ class Cache(ABC):
         pass
 
     @abstractmethod
-    def get_metadata_by_id(self, id: int) -> FullereneMetadataDict:
+    def get_metadata_by_id(self, id: str) -> FullereneMetadataDict:
         pass
 
     @abstractmethod
-    def get_fullerene(self, n: int, id: int) -> Optional[FullereneDataDict]:
+    def get_fullerene(self, n: int, id: str) -> Optional[FullereneDataDict]:
         pass
 
     @abstractmethod
@@ -72,11 +78,13 @@ class MemoryCache(Cache):
             return list(self.store.keys())
 
     def add_fullerene(
-        self,
-        n: int,
-        id: int,
-        outer_vertices: List[int],
-        edges: List[List[int]],
+            self,
+            n: int,
+            id: str,
+            parent_id: str,
+            is_ipr: bool,
+            outer_vertices: List[int],
+            edges: List[List[int]],
     ) -> None:
 
         full_key = f"fullerene:{n}:{id}"
@@ -85,13 +93,17 @@ class MemoryCache(Cache):
         full_data: FullereneDataDict = {
             "id": id,
             "n": n,
+            "parent_id": parent_id,
+            "is_ipr": is_ipr,
             "outer_vertices": outer_vertices,
             "edges": edges,
         }
 
         meta_data: FullereneMetadataDict = {
             "id": id,
-            "n": n
+            "n": n,
+            "parent_id": parent_id,
+            "is_ipr": is_ipr,
         }
 
         self.set(full_key, full_data)
@@ -123,6 +135,9 @@ class MemoryCache(Cache):
         result.sort(key=lambda meta: meta["id"])
         return result
 
+    def get_metadata_by_id(self, id: str) -> FullereneMetadataDict:
+        pass
+
     def get_fullerene(self, n: int, id: int) -> Optional[FullereneDataDict]:
         value = self.get(f"fullerene:{n}:{id}")
         if isinstance(value, dict):
@@ -137,9 +152,18 @@ class SqliteCache(Cache):
     def __init__(self):
         self.conn = initialize_db()
 
-    def add_fullerene(self, n, id, outer_vertices, edges):
+    def add_fullerene(
+            self,
+            n: int,
+            id: str,
+            parent_id: str,
+            is_ipr: bool,
+            outer_vertices: List[int],
+            edges: List[List[int]]
+    ):
         cur = self.conn.cursor()
-        cur.execute("INSERT INTO fullerenes(id, n, outer_vertices, edges) VALUES (?, ?, ?, ?)", (id, n, json.dumps(outer_vertices), json.dumps(edges)))
+        cur.execute("INSERT INTO fullerenes(id, n, parent_id, is_ipr, outer_vertices, edges) VALUES (?, ?, ?, ?, ?, ?)",
+                    (id, n, parent_id, is_ipr, json.dumps(outer_vertices), json.dumps(edges)))
         self.conn.commit()
 
     def get_counts(self):
@@ -152,22 +176,26 @@ class SqliteCache(Cache):
 
     def get_metadata_for_size(self, n):
         cur = self.conn.cursor()
-        res = cur.execute("SELECT id, n FROM fullerenes WHERE n=?", (n,))
+        res = cur.execute("SELECT id, n, parent_id, is_ipr FROM fullerenes WHERE n=?", (n,))
         result: List[FullereneMetadataDict] = []
         for row in res:
             result.append({
                 "id": row[0],
-                "n": row[1]
+                "n": row[1],
+                "parent_id": row[2],
+                "is_ipr": row[3],
             })
         return result
     
     def get_metadata_by_id(self, id):
         cur = self.conn.cursor()
-        res = cur.execute("SELECT id, n FROM fullerenes WHERE id=?", (id,))
+        res = cur.execute("SELECT id, n, parent_id, is_ipr FROM fullerenes WHERE id=?", (id,))
         metadata = res.fetchone()
         return{
             "id": metadata[0],
-            "n": metadata[1]
+            "n": metadata[1],
+            "parent_id": metadata[2],
+            "is_ipr": metadata[3],
         }
 
     def get_fullerene(self, n, id):
@@ -179,8 +207,10 @@ class SqliteCache(Cache):
         return {
             "id": fullerene[0],
             "n": fullerene[1],
-            "outer_vertices": json.loads(fullerene[2]),
-            "edges": json.loads(fullerene[3]),
+            "parent_id": fullerene[2],
+            "is_ipr": fullerene[3],
+            "outer_vertices": json.loads(fullerene[4]),
+            "edges": json.loads(fullerene[5]),
         }
     
     def clear_cache(self):
@@ -193,7 +223,7 @@ _cache_instance: Optional[Cache] = None
 def initialize_db():
     conn = sqlite3.connect("", check_same_thread=False)
     cur = conn.cursor()
-    cur.execute("CREATE TABLE fullerenes(id INTEGER PRIMARY KEY, n INTEGER, outer_vertices TEXT, edges TEXT)")
+    cur.execute("CREATE TABLE fullerenes(id VARCHAR PRIMARY KEY, n INTEGER, parent_id VARCHAR, is_ipr BIT, outer_vertices TEXT, edges TEXT)")
     return conn
 
 
