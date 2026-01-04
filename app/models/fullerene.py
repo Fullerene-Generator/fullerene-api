@@ -15,6 +15,7 @@ class FullereneVisualizationData(BaseModel):
     n: int
     edges: List[List[int]]
     coords: List[List[float]]
+    parent_id: str
 
 class GenerateRequest(BaseModel):
     max_n: int
