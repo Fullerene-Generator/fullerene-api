@@ -5,9 +5,9 @@ from ..models.fullerene import FullereneMetadataListResponse, FullereneMetadataB
 router = APIRouter()
 
 @router.get("/fullerenes/{size}", response_model=FullereneMetadataListResponse)
-async def get_metadata(size: int, cache=Depends(get_cache_instance)):
+async def get_metadata(size: int, limit: int, offset: int, cache=Depends(get_cache_instance)):
     try:
-        metadata = cache.get_metadata_for_size(size)
+        metadata = cache.get_metadata_for_size(size, limit, offset)
     except Exception as e:
         raise HTTPException(status_code=500,
                              detail=f"Cannot fetch metadata for size {size}. Cause: {e}")
