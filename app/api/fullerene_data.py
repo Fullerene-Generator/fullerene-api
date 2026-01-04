@@ -6,10 +6,10 @@ from ..core.cache import Cache
 from ..core.config import config
 router = APIRouter()
 
-@router.get("/fullerenes/2D/{size}/{id}", response_model=FullereneVisualizationData)
-async def get_fullerene(size: int, id: str, cache: Cache=Depends(get_cache_instance)):
+@router.get("/fullerenes/2D/{id}", response_model=FullereneVisualizationData)
+async def get_fullerene(id: str, cache: Cache=Depends(get_cache_instance)):
     try:
-        data = cache.get_fullerene(size, id)
+        data = cache.get_fullerene(id)
     except Exception as e:
         raise HTTPException(status_code = 500,
                             detail=f"Failed to fetch data for fullerene with id: {id}. Cause: {e}")
@@ -54,13 +54,13 @@ async def get_fullerene(size: int, id: str, cache: Cache=Depends(get_cache_insta
                 output_edges.append([int(i), int(neighbours[j])])
 
     
-    return FullereneVisualizationData(id=id, n=size, edges=output_edges, coords=coords)
+    return FullereneVisualizationData(id=id, n=len(coords), edges=output_edges, coords=coords, parent_id=data["parent_id"])
 
 
-@router.get("/fullerenes/3D/{size}/{id}", response_model=FullereneVisualizationData)
-async def get_fullerene(size: int, id: str, cache: Cache=Depends(get_cache_instance)):
+@router.get("/fullerenes/3D/{id}", response_model=FullereneVisualizationData)
+async def get_fullerene(id: str, cache: Cache=Depends(get_cache_instance)):
     try:
-        data = cache.get_fullerene(size, id)
+        data = cache.get_fullerene(id)
     except Exception as e:
         raise HTTPException(status_code = 500,
                             detail=f"Failed to fetch data for fullerene with id: {id}. Cause: {e}")
@@ -104,4 +104,4 @@ async def get_fullerene(size: int, id: str, cache: Cache=Depends(get_cache_insta
                 output_edges.append([int(i), int(neighbours[j])])
 
     
-    return FullereneVisualizationData(id=id, n=size, edges=output_edges, coords=coords)
+    return FullereneVisualizationData(id=id, n=len(coords), edges=output_edges, coords=coords, parent_id=data["parent_id"])

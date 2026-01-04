@@ -46,7 +46,7 @@ class Cache(ABC):
         pass
 
     @abstractmethod
-    def get_fullerene(self, n: int, id: str) -> Optional[FullereneDataDict]:
+    def get_fullerene(self,id: str) -> Optional[FullereneDataDict]:
         pass
 
     @abstractmethod
@@ -104,7 +104,7 @@ class SqliteCache(Cache):
             "is_ipr": metadata[3],
         }
 
-    def get_fullerene(self, n, id):
+    def get_fullerene(self, id):
         cur = self.conn.cursor()
         res = cur.execute("SELECT * FROM fullerenes WHERE id=?", (id,))
         fullerene = res.fetchone()

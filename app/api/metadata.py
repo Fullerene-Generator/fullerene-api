@@ -21,7 +21,7 @@ async def get_metadata(size: int, limit: int, offset: int, cache=Depends(get_cac
     )
 
 @router.get("/fullerenes/ID/{id}", response_model=FullereneMetadataByIdResponse)
-async def get_metadata_by_id(id: int, cache=Depends(get_cache_instance)):
+async def get_metadata_by_id(id: str, cache=Depends(get_cache_instance)):
     try:
         metadata = cache.get_metadata_by_id(id)
     except Exception as e:
