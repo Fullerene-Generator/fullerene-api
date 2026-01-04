@@ -46,7 +46,7 @@ class Cache(ABC):
         pass
 
     @abstractmethod
-    def get_fullerene(self, id: str) -> Optional[FullereneDataDict]:
+    def get_fullerene(self,id: str) -> Optional[FullereneDataDict]:
         pass
 
     @abstractmethod
