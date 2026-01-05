@@ -29,7 +29,7 @@ async def get_metadata_by_id(id: str, cache=Depends(get_cache_instance)):
         raise HTTPException(status_code=500,
                              detail=f"Cannot fetch metadata for id {id}. Cause: {e}")
 
-    if len(metadata) == 0:
+    if metadata is None:
          raise HTTPException(status_code=404, detail=f"Metadata for given id not found id: {id}")
     return FullereneMetadataByIdResponse(
         metadata=metadata

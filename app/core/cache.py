@@ -118,6 +118,8 @@ class SqliteCache(Cache):
         cur = self.conn.cursor()
         res = cur.execute("SELECT id, n, parent_id, is_ipr FROM fullerenes WHERE id=?", (id,))
         metadata = res.fetchone()
+        if metadata is None:
+            return None
         return{
             "id": metadata[0],
             "n": metadata[1],
