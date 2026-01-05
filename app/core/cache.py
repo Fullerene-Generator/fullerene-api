@@ -72,17 +72,38 @@ class SqliteCache(Cache):
                     (id, n, parent_id, is_ipr, json.dumps(outer_vertices), json.dumps(edges)))
         self.conn.commit()
 
-    def get_counts(self):
+    def get_counts(self, is_ipr: Optional[bool]):
         cur = self.conn.cursor()
-        res = cur.execute("SELECT n, COUNT(*) FROM fullerenes GROUP BY n")
+        params = []
+
+        sql = "SELECT n, COUNT(*) FROM fullerenes"
+
+        if is_ipr is not None:
+            sql += " WHERE is_ipr=?"
+            params.append(int(is_ipr))
+
+        sql += " GROUP BY n"
+        res = cur.execute(sql, params)
         result: Dict[int, int] = {}
         for row in res:
             result[row[0]] = row[1]
         return result
 
-    def get_metadata_for_size(self, n, limit, offset):
+    def get_metadata_for_size(self, n, limit, offset, is_ipr: Optional[bool]):
         cur = self.conn.cursor()
-        res = cur.execute("SELECT id, n, parent_id, is_ipr FROM fullerenes WHERE n=? LIMIT ? OFFSET ?", (n, limit, offset))
+
+        params = []
+
+        sql = "SELECT id, n, parent_id, is_ipr FROM fullerenes WHERE n=?"
+        params.append(n)
+
+        if is_ipr is not None:
+            sql += " AND is_ipr=?"
+            params.append(is_ipr)
+        sql +=  "LIMIT ? OFFSET ?"
+        params.append(limit)
+        params.append(offset)
+        res = cur.execute(sql, params)
         result: List[FullereneMetadataDict] = []
         for row in res:
             result.append({
