@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from ..core.cache import get_cache_instance
 from ..models.fullerene import FullereneMetadataListResponse, FullereneMetadataByIdResponse
+from typing import Optional
 
 router = APIRouter()
 
 @router.get("/fullerenes/{size}", response_model=FullereneMetadataListResponse)
-async def get_metadata(size: int, limit: int, offset: int, cache=Depends(get_cache_instance)):
+async def get_metadata(size: int, limit: int, offset: int,  is_ipr: Optional[bool] | None = None, cache=Depends(get_cache_instance)):
     try:
-        metadata = cache.get_metadata_for_size(size, limit, offset)
+        metadata = cache.get_metadata_for_size(size, limit, offset, is_ipr)
     except Exception as e:
         raise HTTPException(status_code=500,
                              detail=f"Cannot fetch metadata for size {size}. Cause: {e}")
@@ -28,7 +29,7 @@ async def get_metadata_by_id(id: str, cache=Depends(get_cache_instance)):
         raise HTTPException(status_code=500,
                              detail=f"Cannot fetch metadata for id {id}. Cause: {e}")
 
-    if len(metadata) == 0:
+    if metadata is None:
          raise HTTPException(status_code=404, detail=f"Metadata for given id not found id: {id}")
     return FullereneMetadataByIdResponse(
         metadata=metadata
