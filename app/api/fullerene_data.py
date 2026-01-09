@@ -4,22 +4,24 @@ from ..models.fullerene import FullereneVisualizationData
 import asyncio
 from ..core.cache import Cache
 from ..core.config import config
+
 router = APIRouter()
 
-@router.get("/fullerenes/2D/{id}", response_model=FullereneVisualizationData)
-async def get_fullerene(id: str, cache: Cache=Depends(get_cache_instance)):
+
+@router.get("/fullerenes/2D/{force}/{id}", response_model=FullereneVisualizationData)
+async def get_fullerene(id: str, force: int, cache: Cache = Depends(get_cache_instance)):
     try:
         data = cache.get_fullerene(id)
     except Exception as e:
-        raise HTTPException(status_code = 500,
+        raise HTTPException(status_code=500,
                             detail=f"Failed to fetch data for fullerene with id: {id}. Cause: {e}")
-    
+
     if not data:
         raise HTTPException(status_code=404, detail="Fullerene not found")
-    
+
     process = await asyncio.create_subprocess_exec(
         config.EMBEDDER_2D_EXE,
-        "2",
+        "2", str(force),
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
         stdin=asyncio.subprocess.PIPE,
@@ -42,7 +44,6 @@ async def get_fullerene(id: str, cache: Cache=Depends(get_cache_instance)):
     for line in lines:
         x, y = line.split()
         coords.append([float(x), float(y)])
-    
 
     output_edges = []
 
@@ -53,29 +54,29 @@ async def get_fullerene(id: str, cache: Cache=Depends(get_cache_instance)):
             if neighbours[j] > i:
                 output_edges.append([int(i), int(neighbours[j])])
 
-    
-    return FullereneVisualizationData(id=id, n=len(coords), edges=output_edges, coords=coords, parent_id=data["parent_id"])
+    return FullereneVisualizationData(id=id, n=len(coords), edges=output_edges, coords=coords,
+                                      parent_id=data["parent_id"])
 
 
-@router.get("/fullerenes/3D/{id}", response_model=FullereneVisualizationData)
-async def get_fullerene(id: str, cache: Cache=Depends(get_cache_instance)):
+@router.get("/fullerenes/3D/{force}/{id}", response_model=FullereneVisualizationData)
+async def get_fullerene(id: str, force: int, cache: Cache = Depends(get_cache_instance)):
     try:
         data = cache.get_fullerene(id)
     except Exception as e:
-        raise HTTPException(status_code = 500,
+        raise HTTPException(status_code=500,
                             detail=f"Failed to fetch data for fullerene with id: {id}. Cause: {e}")
-    
+
     if not data:
         raise HTTPException(status_code=404, detail="Fullerene not found")
-    
+
     process = await asyncio.create_subprocess_exec(
         config.EMBEDDER_2D_EXE,
-        "3",
+        "3", str(force),
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
         stdin=asyncio.subprocess.PIPE,
     )
-    
+
     lines = []
 
     lines.append(str(data["n"]))
@@ -94,7 +95,6 @@ async def get_fullerene(id: str, cache: Cache=Depends(get_cache_instance)):
     for line in lines:
         x, y, z = line.split()
         coords.append([float(x), float(y), float(z)])
-    
 
     output_edges = []
 
@@ -103,5 +103,5 @@ async def get_fullerene(id: str, cache: Cache=Depends(get_cache_instance)):
             if neighbours[j] > i:
                 output_edges.append([int(i), int(neighbours[j])])
 
-    
-    return FullereneVisualizationData(id=id, n=len(coords), edges=output_edges, coords=coords, parent_id=data["parent_id"])
+    return FullereneVisualizationData(id=id, n=len(coords), edges=output_edges, coords=coords,
+                                      parent_id=data["parent_id"])
