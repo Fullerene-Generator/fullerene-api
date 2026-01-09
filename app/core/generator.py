@@ -41,4 +41,6 @@ async def stream_generate(max_n: int, cache: Cache, processWraper: ProcessWrappe
         cache.add_fullerene(n, id, parent_id, is_ipr, outer_vertices, edges)
 
     await process.wait()
+    # because of polling mechanism on UI we have to ensure that after generation ends, all of the fullerens are sent
+    await asyncio.sleep(2)
     processWraper.setIdle()
