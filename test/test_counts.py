@@ -2,7 +2,7 @@ from app.core.generator import stream_generate
 from app.states.job_state import ProcessWrapper
 from unittest.mock import patch
 from .mocks import MockAsyncProcess
-from .testconstants import C30_INPUT, EXCEPTION_REASON
+from .testconstants import C30_INPUT, EXCEPTION_REASON, C60_IPR_INPUT, C60_INPUT
 from app.main import app
 from fastapi.testclient import TestClient
 from app.core.cache import get_cache_instance
@@ -17,7 +17,7 @@ class TestCount(BaseIntegrationTest):
         app.dependency_overrides[get_cache_instance] = lambda: sqlite_cache
         client = TestClient(app)
 
-        mock_create_subprocess_exec.return_value = MockAsyncProcess(input=C30_INPUT)
+        mock_create_subprocess_exec.return_value = MockAsyncProcess(input=(C30_INPUT + "\n" + C60_IPR_INPUT + "\n" + C60_INPUT))
         
         wrapper = ProcessWrapper()
 
@@ -30,6 +30,38 @@ class TestCount(BaseIntegrationTest):
             "items": [
                 {
                     "vertices": 30, 
+                    "count": 1
+                },
+                {
+                    "vertices": 60,
+                    "count": 2
+                }
+            ]
+        }
+        
+        app.dependency_overrides = {}
+
+
+    @pytest.mark.asyncio
+    @patch('app.core.generator.asyncio.create_subprocess_exec')
+    async def test_whenFullerenesGeneratedAndCountsCalledWithIpr_shouldReturnRelevantCounts(self, mock_create_subprocess_exec, sqlite_cache):
+
+        app.dependency_overrides[get_cache_instance] = lambda: sqlite_cache
+        client = TestClient(app)
+
+        mock_create_subprocess_exec.return_value = MockAsyncProcess(input=(C30_INPUT + "\n" + C60_IPR_INPUT))
+        
+        wrapper = ProcessWrapper()
+
+        await stream_generate(max_n=10, cache=sqlite_cache, processWraper=wrapper)
+
+        response = client.get("/counts?is_ipr=true")
+
+        assert response.status_code == 200
+        assert response.json() == {
+            "items": [
+                {
+                    "vertices": 60,
                     "count": 1
                 }
             ]

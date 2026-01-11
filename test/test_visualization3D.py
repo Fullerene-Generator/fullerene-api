@@ -33,10 +33,11 @@ class Test2DVisualization(BaseIntegrationTest):
 
         assert response.status_code == 200
         assert response.json() == {
-            "id": 0,
+            "id": "30:0",
             "n": 30,
             "edges": C30_EDGES_EMBEDDING,
-            "coords": C30_3D_EMBEDDING_OUTPUT
+            "coords": C30_3D_EMBEDDING_OUTPUT,
+            "parent_id": "BASE"
         }
         app.dependency_overrides = {}
 
