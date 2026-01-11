@@ -48,9 +48,7 @@ async def get_fullerene(id: str, force: int, cache: Cache = Depends(get_cache_in
     output_edges = []
 
     for i, neighbours in enumerate(data["edges"]):
-        print(neighbours)
         for j in range(3):
-            print(neighbours[j])
             if neighbours[j] > i:
                 output_edges.append([int(i), int(neighbours[j])])
 

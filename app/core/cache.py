@@ -38,7 +38,7 @@ class Cache(ABC):
         pass
 
     @abstractmethod
-    def get_metadata_for_size(self, n: int, limit: int, offset: int) -> List[FullereneMetadataDict]:
+    def get_metadata_for_size(self, n: int, limit: int, offset: int, is_ipr: Optional[bool]) -> List[FullereneMetadataDict]:
         pass
 
     @abstractmethod

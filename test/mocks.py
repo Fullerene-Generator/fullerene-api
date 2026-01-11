@@ -1,5 +1,6 @@
 from unittest.mock import MagicMock
 from .testconstants import EXCEPTION_REASON
+from typing import Optional
 
 class MockStreamReader:
     def __init__(self, output_data):
@@ -26,9 +27,11 @@ class MockAsyncProcess(MagicMock):
         return (b"", None)
 
 class FaultyCache:
-    def get_counts(self):
+    def get_counts(self, is_ipr: Optional[bool]):
         raise Exception(EXCEPTION_REASON)
-    def get_metadata_for_size(self, n: int):
+    def get_metadata_for_size(self, n: int, limit: int, offset: int, is_ipr: Optional[bool]) :
         raise Exception(EXCEPTION_REASON)
-    def get_fullerene(self, n:int, id:int):
+    def get_fullerene(self, id):
+        raise Exception(EXCEPTION_REASON)
+    def get_metadata_by_id(self, id):
         raise Exception(EXCEPTION_REASON)

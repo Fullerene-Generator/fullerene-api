@@ -7,6 +7,6 @@ import os
 class Config:
     FULLERENE_EXE = os.getenv("FULLERENE_EXE")
     EMBEDDER_2D_EXE = os.getenv("EMBEDDER_2D_EXE")
-    CACHE_BACKEND = os.getenv("CACHE_BACKEND", "memory").lower()
+    CACHE_BACKEND = os.getenv("CACHE_BACKEND", "sqlite").lower()
 
 config = Config()
